@@ -4,7 +4,8 @@ import Card from "@mui/joy/Card";
 import CardCover from "@mui/joy/CardCover";
 import CardContent from "@mui/joy/CardContent";
 import Typography from "@mui/joy/Typography";
-
+import snow from "../assets/images/snow.jpeg";
+import rain from "../assets/images/rain.jpeg";
 import BelgradeImg from "../assets/images/belgrade.jpeg";
 
 export default function CardFunc() {
@@ -31,11 +32,27 @@ export default function CardFunc() {
     fetchWeather();
   }, []);
 
+  let imageSrc = BelgradeImg;
+  if (
+    weather &&
+    weather.weather &&
+    weather.weather[0].description.toLowerCase().includes("snow")
+  ) {
+    imageSrc = snow;
+  }
+  if (
+    weather &&
+    weather.weather &&
+    weather.weather[0].description.toLowerCase().includes("rain")
+  ) {
+    imageSrc = rain;
+  }
+
   return (
     <Box component="ul" sx={{ display: "flex", flexWrap: "wrap", p: 0, m: 0 }}>
       <Card component="li" sx={{ minWidth: 500, height: 400 }}>
         <CardCover>
-          <img src={BelgradeImg} loading="lazy" alt="weather_img" />
+          <img src={imageSrc} loading="lazy" alt="weather_img" />
         </CardCover>
         <CardContent>
           {weather && (
