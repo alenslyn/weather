@@ -8,8 +8,25 @@ import snow from "../assets/images/snow.jpeg";
 import rain from "../assets/images/rain.jpeg";
 import defaultImg from "../assets/images/default.jpeg";
 import BelgradeImg from "../assets/images/belgrade.jpeg";
+import "./Card.css";
 
 const list = ["Belgrade", "Novi Sad", "Nis"];
+
+const fetchWeather = async (city, setWeather) => {
+  try {
+    const apiKey = "0b310c5fe47ad534d9b604b9c7a52e63";
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    const response = await fetch(apiUrl);
+    if (response.ok) {
+      const data = await response.json();
+      setWeather(data);
+    } else {
+      throw new Error("Failed to fetch weather data");
+    }
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+  }
+};
 
 export default function CardFunc() {
   const [weather, setWeather] = useState(null);
@@ -19,25 +36,9 @@ export default function CardFunc() {
     setCityName(e.target.value);
   };
 
-  const fetchWeather = async (city) => {
-    try {
-      const apiKey = "0b310c5fe47ad534d9b604b9c7a52e63";
-      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-      const response = await fetch(apiUrl);
-      if (response.ok) {
-        const data = await response.json();
-        setWeather(data);
-      } else {
-        throw new Error("Failed to fetch weather data");
-      }
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
-    }
-  };
-
   useEffect(() => {
     if (cityName !== "") {
-      fetchWeather(cityName);
+      fetchWeather(cityName, setWeather);
     }
   }, [cityName]);
 
@@ -74,9 +75,16 @@ export default function CardFunc() {
         </CardCover>
         <CardContent>
           <div>
-            <label htmlFor="cityInput">Select City: </label>
-            <select id="cityInput" value={cityName} onChange={handleCityChange}>
-              <option value="">Select a city</option>
+            <label htmlFor="cityInput" />
+            <select
+              className="input_title"
+              id="cityInput"
+              value={cityName}
+              onChange={handleCityChange}
+            >
+              <option className="city_option" value="">
+                Select a city
+              </option>
               {list.map((city, index) => (
                 <option key={index} value={city}>
                   {city}
