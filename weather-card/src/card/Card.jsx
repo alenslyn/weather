@@ -6,33 +6,51 @@ import CardContent from "@mui/joy/CardContent";
 import Typography from "@mui/joy/Typography";
 import snow from "../assets/images/snow.jpeg";
 import rain from "../assets/images/rain.jpeg";
+import defaultImg from "../assets/images/default.jpeg";
 import BelgradeImg from "../assets/images/belgrade.jpeg";
+
+const list = ["Belgrade", "Novi Sad", "Nis"];
 
 export default function CardFunc() {
   const [weather, setWeather] = useState(null);
+  const [cityName, setCityName] = useState("");
+
+  const handleCityChange = (e) => {
+    setCityName(e.target.value);
+  };
+
+  const fetchWeather = async (city) => {
+    try {
+      const apiKey = "0b310c5fe47ad534d9b604b9c7a52e63";
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const data = await response.json();
+        setWeather(data);
+      } else {
+        throw new Error("Failed to fetch weather data");
+      }
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const apiKey = "0b310c5fe47ad534d9b604b9c7a52e63";
-        const city = "Belgrade";
-        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-          setWeather(data);
-        } else {
-          throw new Error("Failed to fetch weather data");
-        }
-      } catch (error) {
-        console.error("Error fetching weather data:", error);
-      }
-    };
+    if (cityName !== "") {
+      fetchWeather(cityName);
+    }
+  }, [cityName]);
 
-    fetchWeather();
-  }, []);
+  let imageSrc = defaultImg;
 
-  let imageSrc = BelgradeImg;
+  if (
+    weather &&
+    weather.weather &&
+    weather.weather[0].description.toLowerCase().includes("clear")
+  ) {
+    imageSrc = BelgradeImg;
+  }
+
   if (
     weather &&
     weather.weather &&
@@ -55,6 +73,17 @@ export default function CardFunc() {
           <img src={imageSrc} loading="lazy" alt="weather_img" />
         </CardCover>
         <CardContent>
+          <div>
+            <label htmlFor="cityInput">Select City: </label>
+            <select id="cityInput" value={cityName} onChange={handleCityChange}>
+              <option value="">Select a city</option>
+              {list.map((city, index) => (
+                <option key={index} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
           {weather && (
             <>
               <Typography
@@ -63,7 +92,7 @@ export default function CardFunc() {
                 textColor="#fff"
                 mt={{ xs: 12, sm: 30 }}
               >
-                Weather for {weather.name}, {weather.sys.country}
+                Weather for {weather.name}, {weather.sys.city}
               </Typography>
               <Typography variant="body1" textColor="#fff">
                 Temperature: {weather.main.temp}°C
